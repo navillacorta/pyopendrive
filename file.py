@@ -1,97 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import requests
+from URLs import URLs
 
+        
+        
 
-        
-        
-"""
-    def info(session, fileID):
-        
-        payload = {
-            'session_id' : session.get("SessionID"),
-            'file_id' : fileID
-            }
-"""
-
-
-
-class OpenDrive(object):
-    
-    # API URLS
-    
-    ## SESSION
-    URL_LOGIN = 'https://dev.opendrive.com/api/v1/session/login.json'
-    URL_LOGOUT = 'https://dev.opendrive.com/api/v1/session/logout.json'
-    
-    ## FOLDER
-    URL_FOLDER_LISTDIR = 'https://dev.opendrive.com/api/v1/folder/list.json'
-    URL_FOLDER_GETPATH = 'https://dev.opendrive.com/api/v1/folder/path.json'
-    URL_FOLDER_MKDIR = 'https://dev.opendrive.com/api/v1/folder.json'
-    URL_FOLDER_MOVE_COPY = 'https://dev.opendrive.com/api/v1/folder/move_copy.json'
-    URL_FOLDER_RENAME = 'https://dev.opendrive.com/api/v1/folder/rename.json'
-    URL_FOLDER_RESTORE = 'https://dev.opendrive.com/api/v1/folder/restore.json'
-    
-    ## FILE
-    URL_FILE_INFO = 'https://dev.opendrive.com/api/v1/file/info.json'
-    URL_FILE_PATH = 'https://dev.opendrive.com/api/v1/file/path.json'
-    URL_FILE_THUMB = 'https://dev.opendrive.com/api/v1/file/thumb.json'
-    URL_FILE_ACCESS = 'https://dev.opendrive.com/api/v1/file/access.json'
-    URL_FILE_ID_BY_PATH = 'https://dev.opendrive.com/api/v1/file/idbypath.json'
-
-    # LIBRARY VERSION
-    VERSION = '1'
-    
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-        
-        self.SESSION_ACTIVE = False
-    ## SESSION FUNCTIONS
-    
-    def login(self):
-        payload = {
-            'username' : self.username,
-            'passwd' : self.password,
-            'version' : self.VERSION
-            }
-        
-        try:
-            r = requests.post(self.URL_LOGIN, data=payload)
-            if r.status_code is 200:
-                self.session = r.json()
-                self.SESSION_ACTIVE = True
-            else:
-                r.raise_for_status()
-        except requests.HTTPError, e:
-            print e
-    
-    def session_exists(self):
-        try:
-            session_id = self.session["SessionID"]
-            self.SESSION_ACTIVE = True
-        except (NameError,AttributeError):
-            print "You must login first"
-            self.SESSION_ACTIVE = False
-        except KeyError:
-            print self.session["error"]["message"]
-            self.SESSION_ACTIVE = False
-        
-        return self.SESSION_ACTIVE
-    
-    def logout(self):
-        payload = {'session_id' : self.session['SessionID']}
-        
-        try:
-            r = requests.post(self.URL_LOGOUT, data=payload)
-            if r.status_code is 200:
-                del self.session
-                self.SESSION_ACTIVE = False
-            else:
-                r.raise_for_status()
-        except requests.HTTPError, e:
-            print e
-    
-    ## FILE FUNCTIONS
-    
+class File(object):
     def info(self, file_id):
         if not self.SESSION_ACTIVE:
             return None
@@ -190,8 +105,24 @@ class OpenDrive(object):
                 r.raise_for_status()
         except requests.HTTPError, e:
             print e
+            raise
     
-    def move(self, file_id, dest_folder_id, overwrite_if_exists='false', src_access_folder_id, dst_access_folder_id):
+    def move(self, file_id, dest_folder_id, overwrite_if_exists='false'):
+        payload = {
+            'session_id': self.session['SessionID'],
+            'src_file_id': file_id,
+            'dest_folder_id': dest_folder_id,
+            'move': 'true',
+            'overwrite_if_exists': overwrite_if_exists,
+            }
+        
+        try:
+            r = self.post(self.URL_FILE_MOVE_COPY, payload)
+            return r
+        except:
+            return None
+    
+    def copy(self, file_id, dest_folder_id, overwrite_if_exists='false'):
         payload = {
             'session_id': self.session['SessionID'],
             'src_file_id': file_id,
@@ -199,18 +130,12 @@ class OpenDrive(object):
             'move': 'false',
             'overwrite_if_exists': overwrite_if_exists,
             }
+        
+        try:
+            r = self.post(self.URL_FILE_MOVE_COPY, payload)
+            return r
+        except:
+            return None
 
-
-
-
-
-
-
-
-
-
-
-
-o1 = OpenDrive(USERNAME, PASSWD)
-o1.login()
+    
 
