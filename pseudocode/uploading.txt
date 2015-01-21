@@ -1,0 +1,23 @@
+upload
+    if file exists
+        if exists
+            compare
+            if match
+                end
+            else
+                jump to begin_upload
+    else
+        if parent folder
+            jump to begin_upload
+        else
+            for folder in iter_descending_folder_path
+                create folder
+            jump to begin_upload
+
+jump to begin_upload
+    create dst file
+    create temp dst file
+    upload data to temp dst file
+    sync dst file to tmp dst file
+    close
+
